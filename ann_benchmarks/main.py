@@ -31,8 +31,7 @@ def main():
         '--dataset',
         metavar='NAME',
         help='the dataset to load training points from',
-        default='glove-100-angular',
-        choices=DATASETS.keys())
+        default='glove-100-angular')
     parser.add_argument(
         "-k", "--count",
         default=10,

@@ -62,6 +62,7 @@ class FaissIVF(Faiss):
         index.train(X)
         index.add(X)
         self.index = index
+        faiss.omp_set_num_threads(1)
 
     def set_query_arguments(self, n_probe):
         self._n_probe = n_probe
