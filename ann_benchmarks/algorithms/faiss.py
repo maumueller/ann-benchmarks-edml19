@@ -70,7 +70,7 @@ class FaissIVF(Faiss):
         self.index.nprobe = self._n_probe
 
     def get_additional(self):
-        return {"dist_comps" : faiss.cvar.indexIVF_stats.ndis}
+        return {"dist_comps" : faiss.cvar.indexIVF_stats.ndis + self.n_list}
 
     def __str__(self):
         return 'FaissIVF(n_list=%d, n_probe=%d)' % (self._n_list, self._n_probe)
