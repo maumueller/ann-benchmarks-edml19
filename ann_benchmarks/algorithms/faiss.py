@@ -65,12 +65,12 @@ class FaissIVF(Faiss):
         faiss.omp_set_num_threads(1)
 
     def set_query_arguments(self, n_probe):
-        faiss.cvar.indexIVF_stats.ndis = 0
+        faiss.cvar.indexIVF_stats.reset()
         self._n_probe = n_probe
         self.index.nprobe = self._n_probe
 
     def get_additional(self):
-        return {"dist_comps" : faiss.cvar.indexIVF_stats.ndis + self.n_list}
+        return {"dist_comps" : faiss.cvar.indexIVF_stats.ndis + faiss.cvar.indexIVF_stats.nq * self._n_list}
 
     def __str__(self):
         return 'FaissIVF(n_list=%d, n_probe=%d)' % (self._n_list, self._n_probe)

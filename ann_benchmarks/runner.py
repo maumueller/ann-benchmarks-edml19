@@ -91,9 +91,11 @@ def run_individual_query(algo, X_train, X_test, distance, count, run_count, batc
         "name": str(algo),
         "run_count": run_count,
         "distance": distance,
-        "count": int(count),
-        "extra" : algo.get_additional()
+        "count": int(count)
     }
+    additional = algo.get_additional()
+    for k in additional:
+        attrs[k] = additional[k]
     return (attrs, results)
 
 
