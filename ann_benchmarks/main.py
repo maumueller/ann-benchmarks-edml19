@@ -104,8 +104,8 @@ def main():
 
     dataset = get_dataset(args.dataset)
     dimension = len(dataset['train'][0]) # TODO(erikbern): ugly
-    point_type = dataset.attrs.get('point_type', 'float')
-    distance = dataset.attrs['distance']
+    point_type = dataset.attrs.get('point_type', 'float').decode()
+    distance = dataset.attrs['distance'].decode()
     definitions = get_definitions(args.definitions, dimension, point_type, distance, args.count)
 
     # Filter out, from the loaded definitions, all those query argument groups
