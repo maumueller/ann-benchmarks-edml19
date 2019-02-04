@@ -19,6 +19,7 @@ class ONNG(BaseANN):
         self._edge_size_for_search = -2
         self._build_time_limit = 4
         self._epsilon = 0.0
+        self._distance_computations = 0
         print('ONNG: edge_size=' + str(self._edge_size))
         print('ONNG: outdegree=' + str(self._outdegree))
         print('ONNG: indegree=' + str(self._indegree))
@@ -66,11 +67,18 @@ class ONNG(BaseANN):
 
     def set_query_arguments(self, epsilon):
         print("ONNG: epsilon=" + str(epsilon))
+        self._distance_computations = 0
+        self._previous_distance_computations = self.index.get_num_of_distance_computations()
         self._epsilon = epsilon - 1.0
         self.name = 'ONNG-NGT(%s, %s, %s, %s, %1.3f)' % (self._edge_size, self._outdegree, self._indegree, self._edge_size_for_search, self._epsilon + 1.0)
 
+    def get_additional(self):
+        print(self._distance_computations)
+        return {"dist_comps" : self._distance_computations}
+
     def query(self, v, n):
         results = self.index.search(v, n, self._epsilon, self._edge_size_for_search, with_distance=False)
+        self._distance_computations += self.index.get_num_of_distance_computations()
         return results
 
     def freeIndex(self):
