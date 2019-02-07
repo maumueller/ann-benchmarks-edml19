@@ -101,7 +101,7 @@ if __name__ == "__main__":
     unique_algorithms = get_unique_algorithms()
     results = load_all_results(args.dataset, count, True, args.batch)
     linestyles = create_linestyles(sorted(unique_algorithms))
-    runs = compute_metrics(list(dataset["distances"]), results, args.x_axis, args.y_axis)
+    runs = compute_metrics(dataset, results, args.x_axis, args.y_axis)
     if not runs:
         raise Exception('Nothing to plot')
 

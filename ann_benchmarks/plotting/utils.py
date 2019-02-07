@@ -28,17 +28,18 @@ def create_pointset(data, xn, yn):
             ls.append(algo_name)
     return xs, ys, ls, axs, ays, als
 
-def compute_metrics(true_nn_distances, res, metric_1, metric_2):
+def compute_metrics(dataset, res, metric_1, metric_2):
+    true_nn_distances = numpy.array(dataset['distances'])
     all_results = {}
     for i, (properties, run) in enumerate(res):
         algo = properties['algo']
         algo_name = properties['name']
         # cache to avoid access to hdf5 file
-        run_distances = list(run['distances'])
-        query_times = list(run['times'])
+        run_distances = numpy.array(run['distances'])
+        query_times = numpy.array(run['times'])
 
-        metric_1_value = metrics[metric_1]['function'](true_nn_distances, run_distances, query_times,  properties)
-        metric_2_value = metrics[metric_2]['function'](true_nn_distances, run_distances, query_times, properties)
+        metric_1_value = metrics[metric_1]['function'](true_nn_distances, run_distances, query_times, run.attrs)
+        metric_2_value = metrics[metric_2]['function'](true_nn_distances, run_distances, query_times, run.attrs)
 
         print('%3d: %80s %12.3f %12.3f' % (i, algo_name, metric_1_value, metric_2_value))
 
@@ -71,11 +72,11 @@ def compute_all_metrics(true_nn_distances, run, properties):
     print(algo_name)
     results = {}
     # cache to avoid access to hdf5 file
-    run_distances = list(run["distances"])
-    query_times = list(run['times'])
+    run_distances = numpy.array(run["distances"])
+    query_times = numpy.array(run['times'])
 
     for name, metric in metrics.items():
-        v = metric["function"](true_nn_distances, run_distances, query_times, properties)
+        v = metric["function"](true_nn_distances, run_distances, query_times, run.attrs)
         results[name] = v
         if v:
             print('%s: %g' % (name, v))
