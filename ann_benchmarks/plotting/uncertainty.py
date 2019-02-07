@@ -94,4 +94,4 @@ if __name__ == '__main__':
         plotdata = data[data['dataset'] == dataset]
         uncertainty(plotdata, '{}/{}.png'.format(out_dir,dataset), 
                     x='k-nn',
-                    uncertainty='rect', lines=True)
+                    uncertainty='rect')
