@@ -1,43 +1,41 @@
-# Draft of representing uncertainty in plots. This script needs a file named
-# results.csv in the same directory. Such a file can be obtained with the
-# command
-#
-#     python3 to_csv.py --output results.csv
-
-
+import os
+import sys
+import matplotlib
+# I get a crash without this line
+matplotlib.use('Agg')
 import numpy as np
 from plotnine import *
 import pandas as pd
 import re
 
-def do_plot(data, output, lines=False, uncertainty=None):
+def uncertainty(data, output, x='knn', y='spq', x_dev=None, y_dev=None, lines=False, uncertainty=None):
+    if x_dev is None:
+        x_dev = x + '-std'
+    if y_dev is None:
+        y_dev = y + '-std'
+
     dataset = set(data['dataset'].values)
     assert len(dataset) == 1
     dataset = list(dataset)[0]
-    print(data.columns)
-    data['spq'] = 1/data['qps']
-    data['spq-dev'] = 1/data['qps-dev']
-    data['spq_min'] = data['spq'] - data['spq-dev']
-    data['spq_max'] = data['spq'] + data['spq-dev']
-    data['knn_min'] = data['k-nn'] - data['k-nn-std']
-    data['knn_max'] = data['k-nn'] + data['k-nn-std']
-    data['knn'] = data['k-nn']
-    print(data[['parameters', 'group_param', 'knn', 'k-nn-std', 'spq', 'spq-dev']])
+    data['y_min'] = data[y] - data[y_dev]
+    data['y_max'] = data[y] + data[y_dev]
+    data['x_min'] = data[x] - data[x_dev]
+    data['x_max'] = data[x] + data[x_dev]
 
-    g = ggplot(data, aes(x='knn', y='spq', 
+    g = ggplot(data, aes(x=x, y=y, 
                          group='group_param',
                          color='algorithm', fill='algorithm'))
     if uncertainty == 'bars':
-        g = (g + geom_errorbar(aes(ymax='spq_max',
-                                  ymin='spq_min'),
+        g = (g + geom_errorbar(aes(ymax='y_max',
+                                  ymin='y_min'),
                               width=0.0)
-             + geom_errorbarh(aes(xmax='knn_max',
-                                  xmin='knn_min')))
+             + geom_errorbarh(aes(xmax='x_max',
+                                  xmin='x_min')))
     elif uncertainty == 'rect':
-        g = (g + geom_rect(aes(xmax='knn_max',
-                               xmin='knn_min',
-                               ymax='spq_max',
-                               ymin='spq_min'),
+        g = (g + geom_rect(aes(xmax='x_max',
+                               xmin='x_min',
+                               ymax='y_max',
+                               ymin='y_min'),
                            color=None,
                            alpha=0.1))
     g = g + geom_point(size=0.1)
@@ -45,7 +43,6 @@ def do_plot(data, output, lines=False, uncertainty=None):
          g = g + geom_line()
 
     g = (g + scale_y_log10()
-         # + facet_grid(('dataset', 'algorithm'), scales='fixed')
          + ggtitle(dataset)
          + ylab('seconds per query')
          + xlab('recall')
@@ -78,9 +75,23 @@ def get_grouping_parameter(param_string):
     return np.nan
 
 if __name__ == '__main__':
-    data = pd.read_csv('results.csv')
+    if len(sys.argv) != 2:
+        print("USAGE: python3 -m ann_benchmarks.plotting.uncertainty RESULTS_FILE")
+        sys.exit()
+    data = pd.read_csv(sys.argv[1])
+
+    out_dir = 'uncertainty_plots'
+    if not os.path.isdir(out_dir):
+        os.makedirs(out_dir)
+
     data['group_param'] = [get_grouping_parameter(p) for p in data['parameters']]
+    data['spq'] = 1/data['qps']
+    data['spq-std'] = 1/data['qps-dev']
+    data['spq'] = 1/data['qps']
+    data['spq-std'] = 1/data['qps-dev']
     datasets = set(data['dataset'].values)
     for dataset in datasets:
         plotdata = data[data['dataset'] == dataset]
-        do_plot(plotdata, 'uncertainty/{}.png'.format(dataset), uncertainty='rect')
+        uncertainty(plotdata, '{}/{}.png'.format(out_dir,dataset), 
+                    x='k-nn',
+                    uncertainty='rect', lines=True)
