@@ -47,6 +47,24 @@ def compute_metrics(dataset, res, metric_1, metric_2):
 
     return all_results
 
+
+def compute_metrics_all_runs(true_nn_distances, res):
+    for i, (properties, run) in enumerate(res):
+        algo = properties['algo']
+        algo_name = properties['name']
+        # cache distances to avoid access to hdf5 file
+        run_distances = list(run['distances'])
+        query_times = list(run['times'])
+        run_result = {
+            'algorithm': algo,
+            'parameters': algo_name
+        }
+        for name, metric in metrics.items():
+            v = metric["function"](true_nn_distances, run_distances, query_times, properties)
+            run_result[name] = v
+        yield run_result
+
+
 def compute_all_metrics(true_nn_distances, run, properties):
     algo = properties["algo"]
     algo_name = properties["name"]
