@@ -186,7 +186,7 @@ def load_all_results():
         sdn = get_run_desc(properties)
         if sdn != old_sdn:
             dataset = get_dataset(properties["dataset"])
-            cached_true_dist = list(dataset["distances"])
+            cached_true_dist = numpy.array(dataset["distances"])
             old_sdn = sdn
         algo = properties["algo"]
         ms = compute_all_metrics(cached_true_dist, f, properties)
