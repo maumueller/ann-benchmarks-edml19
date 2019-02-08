@@ -71,7 +71,7 @@ def compute_metrics_all_runs(true_nn_distances, res):
             'parameters': algo_name
         }
         for name, metric in metrics.items():
-            v = metric["function"](true_nn_distances, run_distances, query_times, metrics_cache ,properties)
+            v = metric["function"](true_nn_distances, run_distances, query_times, metrics_cache, properties)
             run_result[name] = v
         yield run_result
 

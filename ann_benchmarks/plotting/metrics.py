@@ -24,14 +24,12 @@ def knn(dataset_distances, run_distances, count, metrics, epsilon=1e-10):
         for p, v in zip(percentiles, percentile_values):
             knn_metrics.attrs['perc-' + str(p)] = v
         knn_metrics['recalls'] = recalls
-    else:
-        print("Found result")
     return metrics['knn']
 
 
 def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
     s = 'eps' + str(epsilon)
-    if s not in attrs:
+    if s not in metrics:
         epsilon_metrics = metrics.create_group(s)
         total = len(run_distances) * count
         recalls = np.zeros(len(run_distances))
@@ -137,12 +135,12 @@ all_metrics = {
     },
     "epsilon": {
         "description": "Epsilon 0.01 Recall",
-        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], run_attrs).attrs['mean'],
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], metrics).attrs['mean'],
         "worst": float("-inf")
     },
     "largeepsilon": {
         "description": "Epsilon 0.1 Recall",
-        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], run_attrs, 0.1).attrs['mean'],
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], metrics, 0.1).attrs['mean'],
         "worst": float("-inf")
     },
     "rel": {
@@ -207,7 +205,7 @@ all_metrics = {
     },
     "queriessize" : {
         "description": "Index size (kB)/Queries per second (s)",
-        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: index_size(true_distances, run_attrs) / queries_per_second(true_distances, run_attrs)[0],
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: index_size(true_distances, run_attrs) / queries_per_second(true_distances, metrics).attrs['mean'],
         "worst": float("inf")
     }
 }
