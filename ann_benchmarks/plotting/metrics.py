@@ -58,7 +58,7 @@ def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
     return metrics[s]
 
 def rel(dataset_distances, run_distances, metrics):
-    if 'rel' not in metrics:
+    if 'rel' not in metrics.attrs:
         print('Computing rel metrics')
         total_closest_distance = 0.0
         total_candidate_distance = 0.0
@@ -67,12 +67,12 @@ def rel(dataset_distances, run_distances, metrics):
                 total_closest_distance += rdist
                 total_candidate_distance += cdist
         if total_closest_distance < 0.01:
-            metrics['rel'] = float("inf")
+            metrics.attrs['rel'] = float("inf")
         else:
-            metrics['rel'] = total_candidate_distance / total_closest_distance
+            metrics.attrs['rel'] = total_candidate_distance / total_closest_distance
     else:
         print("Found cached result")
-    return metrics['rel']
+    return metrics.attrs['rel']
 
 def queries_per_second(query_times, metrics):
     if 'qps' not in metrics:
