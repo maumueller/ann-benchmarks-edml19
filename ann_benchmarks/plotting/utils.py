@@ -4,6 +4,13 @@ import os, itertools, json, numpy, pickle
 from ann_benchmarks.plotting.metrics import all_metrics as metrics
 import matplotlib.pyplot as plt
 
+
+def get_or_create_metrics(run):
+    if 'metrics' not in run:
+        run.create_group('metrics')
+    return run['metrics']
+
+
 def create_pointset(data, xn, yn):
     xm, ym = (metrics[xn], metrics[yn])
     rev = ym["worst"] < 0
@@ -37,9 +44,12 @@ def compute_metrics(dataset, res, metric_1, metric_2):
         # cache to avoid access to hdf5 file
         run_distances = numpy.array(run['distances'])
         query_times = numpy.array(run['times'])
+        # if 'metrics' in run:
+        #     del run['metrics']
+        metrics_cache = get_or_create_metrics(run)
 
-        metric_1_value = metrics[metric_1]['function'](true_nn_distances, run_distances, query_times, run.attrs)
-        metric_2_value = metrics[metric_2]['function'](true_nn_distances, run_distances, query_times, run.attrs)
+        metric_1_value = metrics[metric_1]['function'](true_nn_distances, run_distances, query_times, metrics_cache, run.attrs)
+        metric_2_value = metrics[metric_2]['function'](true_nn_distances, run_distances, query_times, metrics_cache, run.attrs)
 
         print('%3d: %80s %12.3f %12.3f' % (i, algo_name, metric_1_value, metric_2_value))
 
@@ -55,12 +65,13 @@ def compute_metrics_all_runs(true_nn_distances, res):
         # cache distances to avoid access to hdf5 file
         run_distances = list(run['distances'])
         query_times = list(run['times'])
+        metrics_cache = get_or_create_metrics(run)
         run_result = {
             'algorithm': algo,
             'parameters': algo_name
         }
         for name, metric in metrics.items():
-            v = metric["function"](true_nn_distances, run_distances, query_times, properties)
+            v = metric["function"](true_nn_distances, run_distances, query_times, metrics_cache ,properties)
             run_result[name] = v
         yield run_result
 
@@ -74,9 +85,10 @@ def compute_all_metrics(true_nn_distances, run, properties):
     # cache to avoid access to hdf5 file
     run_distances = numpy.array(run["distances"])
     query_times = numpy.array(run['times'])
+    metrics_cache = get_or_create_metrics(run)
 
     for name, metric in metrics.items():
-        v = metric["function"](true_nn_distances, run_distances, query_times, run.attrs)
+        v = metric["function"](true_nn_distances, run_distances, query_times, metrics_cache, run.attrs)
         results[name] = v
         if v:
             print('%s: %g' % (name, v))
