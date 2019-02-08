@@ -105,6 +105,36 @@ all_metrics = {
         "worst": float("-inf"),
         "lim": [0.0, 1.03]
     },
+    "k-nn-median": {
+        "description": "Recall",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['perc-50'],
+        "worst": float("-inf"),
+        "lim": [0.0, 1.03]
+    },
+    "k-nn-perc-5": {
+        "description": "Recall",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['perc-5'],
+        "worst": float("-inf"),
+        "lim": [0.0, 1.03]
+    },
+    "k-nn-perc-95": {
+        "description": "Recall",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['perc-95'],
+        "worst": float("-inf"),
+        "lim": [0.0, 1.03]
+    },
+    "k-nn-perc-25": {
+        "description": "Recall",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['perc-25'],
+        "worst": float("-inf"),
+        "lim": [0.0, 1.03]
+    },
+    "k-nn-perc-75": {
+        "description": "Recall",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: knn(true_distances, run_distances, run_attrs["count"], metrics).attrs['perc-75'],
+        "worst": float("-inf"),
+        "lim": [0.0, 1.03]
+    },
     "epsilon": {
         "description": "Epsilon 0.01 Recall",
         "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: epsilon(true_distances, run_distances, run_attrs["count"], run_attrs).attrs['mean'],
@@ -128,6 +158,31 @@ all_metrics = {
     "qps-std": {
         "description": "Queries per second (1/s)",
         "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['std'],
+        "worst": float("-inf")
+    },
+    "qps-median": {
+        "description": "Queries per second (1/s)",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['perc-50'],
+        "worst": float("-inf")
+    },
+    "qps-perc-5": {
+        "description": "Queries per second (1/s)",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['perc-5'],
+        "worst": float("-inf")
+    },
+    "qps-perc-95": {
+        "description": "Queries per second (1/s)",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['perc-95'],
+        "worst": float("-inf")
+    },
+    "qps-perc-25": {
+        "description": "Queries per second (1/s)",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['perc-25'],
+        "worst": float("-inf")
+    },
+    "qps-perc-75": {
+        "description": "Queries per second (1/s)",
+        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['perc-75'],
         "worst": float("-inf")
     },
     "distcomps" : {
