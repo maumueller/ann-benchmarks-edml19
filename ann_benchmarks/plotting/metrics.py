@@ -78,12 +78,11 @@ def queries_per_second(query_times, metrics):
     if 'qps' not in metrics:
         print('Computing qps metrics')
         qps_metrics = metrics.create_group('qps')
-        qps_metrics.attrs['mean'] = np.mean(query_times)
-        qps_metrics.attrs['std'] = np.std(query_times)
+        qps_metrics.attrs['mean'] = 1/np.mean(query_times)
         percentiles = [5,25,50,75,95]
         percentile_values = np.percentile(query_times, percentiles)
         for p, v in zip(percentiles, percentile_values):
-            qps_metrics.attrs['perc-' + str(p)] = v
+            qps_metrics.attrs['perc-' + str(p)] = 1/v
         qps_metrics['query_times'] = query_times
     else:
         print("Found cached result")
@@ -163,11 +162,6 @@ all_metrics = {
     "qps": {
         "description": "Queries per second (1/s)",
         "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['mean'],
-        "worst": float("-inf")
-    },
-    "qps-std": {
-        "description": "Queries per second (1/s)",
-        "function": lambda true_distances, run_distances, query_times, metrics, run_attrs: queries_per_second(query_times, metrics).attrs['std'],
         "worst": float("-inf")
     },
     "qps-median": {
