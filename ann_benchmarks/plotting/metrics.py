@@ -17,7 +17,6 @@ def knn(dataset_distances, run_distances, count, metrics, epsilon=1e-10):
                 else:
                     break
             recalls[i] = actual
-        recalls = np.sort(recalls)
         knn_metrics.attrs['mean'] = np.mean(recalls) / float(count)
         knn_metrics.attrs['std'] = np.std(recalls) / float(count)
         percentiles = [5,25,50,75,95]
@@ -77,10 +76,11 @@ def rel(dataset_distances, run_distances, metrics):
 def queries_per_second(query_times, metrics):
     if 'qps' not in metrics:
         print('Computing qps metrics')
+        qps_values = 1.0/np.array(query_times)
         qps_metrics = metrics.create_group('qps')
-        qps_metrics.attrs['mean'] = 1/np.mean(query_times)
+        qps_metrics.attrs['mean'] = 1.0/np.mean(query_times)
         percentiles = [5,25,50,75,95]
-        percentile_values = np.percentile(1/np.array(query_times), percentiles)
+        percentile_values = np.percentile(qps_values, percentiles)
         for p, v in zip(percentiles, percentile_values):
             qps_metrics.attrs['perc-' + str(p)] = v
         qps_metrics['query_times'] = query_times

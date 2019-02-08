@@ -59,21 +59,22 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     count = int(args.count)
-    dataframes = []
+    rows = []
     for dataset_name in datasets:
         print("Looking at dataset", dataset_name)
         dataset = get_dataset(dataset_name)
         unique_algorithms = get_unique_algorithms()
+        print('Loading results')
         results = load_all_results(dataset_name, count, True, args.batch)
+        print('... done')
         results = compute_metrics_all_runs(list(dataset["distances"]), results, args.recompute)
-        data = pd.DataFrame(results)
-        data['dataset'] = dataset_name
-        data['count'] = count
-        dataframes.append(data)
-    data = pd.concat(dataframes)
+        rows.extend(results)
+    print('Build dataframe')
+    data = pd.DataFrame(rows)
+    print('... done')
     print(data.groupby(['dataset', 'count', 'algorithm', 'parameters']).count())
     with open(args.output, 'w') as fp:
-        data.to_csv(fp)
+        data.to_csv(fp, index=False)
 
 
 

@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import numpy as np
 import os, itertools, json, numpy, pickle
 from ann_benchmarks.plotting.metrics import all_metrics as metrics
 import matplotlib.pyplot as plt
@@ -63,15 +64,19 @@ def compute_metrics_all_runs(true_nn_distances, res, recompute=False):
         algo = properties['algo']
         algo_name = properties['name']
         # cache distances to avoid access to hdf5 file
-        run_distances = list(run['distances'])
-        query_times = list(run['times'])
+        print('Load distances and times')
+        run_distances = np.array(run['distances'])
+        query_times = np.array(run['times'])
+        print('... done')
         if recompute and 'metrics' in run:
             print('Recomputing metrics, clearing cache')
             del run['metrics']
         metrics_cache = get_or_create_metrics(run)
         run_result = {
             'algorithm': algo,
-            'parameters': algo_name
+            'parameters': algo_name,
+            'dataset': properties['dataset'],
+            'count': properties['count']
         }
         for name, metric in metrics.items():
             v = metric["function"](true_nn_distances, run_distances, query_times, metrics_cache, properties)
