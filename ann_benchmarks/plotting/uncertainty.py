@@ -8,39 +8,42 @@ from plotnine import *
 import pandas as pd
 import re
 
-def uncertainty(data, output, x='knn', y='spq', x_dev=None, y_dev=None, lines=False, uncertainty=None):
-    if x_dev is None:
-        x_dev = x + '-std'
-    if y_dev is None:
-        y_dev = y + '-std'
+def uncertainty(data, output, 
+                x='knn', y='spq', 
+                x_min=None, x_max=None, 
+                y_min=None, y_max=None, 
+                lines=False, uncertainty=None):
 
     dataset = set(data['dataset'].values)
     assert len(dataset) == 1
     dataset = list(dataset)[0]
-    data['y_min'] = data[y] - data[y_dev]
-    data['y_max'] = data[y] + data[y_dev]
-    data['x_min'] = data[x] - data[x_dev]
-    data['x_max'] = data[x] + data[x_dev]
+
+    print(data.columns)
+    print(data[[x,y,x_min,x_max,y_min,y_max]])
 
     g = ggplot(data, aes(x=x, y=y, 
                          group='group_param',
                          color='algorithm', fill='algorithm'))
-    if uncertainty == 'bars':
-        g = (g + geom_errorbar(aes(ymax='y_max',
-                                  ymin='y_min'),
-                              width=0.0)
-             + geom_errorbarh(aes(xmax='x_max',
-                                  xmin='x_min')))
-    elif uncertainty == 'rect':
-        g = (g + geom_rect(aes(xmax='x_max',
-                               xmin='x_min',
-                               ymax='y_max',
-                               ymin='y_min'),
-                           color=None,
-                           alpha=0.1))
+    if x_min is not None and x_max is not None and y_min is not None and x_max is not None:
+        if uncertainty == 'bars':
+            g = (g + geom_errorbar(aes(ymax=y_max,
+                                       ymin=y_min),
+                                  width=0.0)
+                 + geom_errorbarh(aes(xmax=x_max,
+                                      xmin=x_min)))
+        elif uncertainty == 'rect':
+            g = (g + geom_rect(aes(xmax=x_max,
+                                   xmin=x_min,
+                                   ymax=y_max,
+                                   ymin=y_min),
+                               color=None,
+                               alpha=0.1))
+        else:
+            print("Unkwnown way of representing uncertainty")
+
     g = g + geom_point(size=0.1)
     if lines:
-         g = g + geom_line()
+        g = g + geom_line()
 
     g = (g + scale_y_log10()
          + ggtitle(dataset)
@@ -85,13 +88,11 @@ if __name__ == '__main__':
         os.makedirs(out_dir)
 
     data['group_param'] = [get_grouping_parameter(p) for p in data['parameters']]
-    data['spq'] = 1/data['qps']
-    data['spq-std'] = 1/data['qps-dev']
-    data['spq'] = 1/data['qps']
-    data['spq-std'] = 1/data['qps-dev']
     datasets = set(data['dataset'].values)
     for dataset in datasets:
         plotdata = data[data['dataset'] == dataset]
         uncertainty(plotdata, '{}/{}.png'.format(out_dir,dataset), 
-                    x='k-nn',
-                    uncertainty='rect')
+                    x='k-nn-median', y='qps-median',
+                    x_min='k-nn-perc-5', x_max='k-nn-perc-95',
+                    y_min='qps-perc-5', y_max='qps-perc-95',
+                    uncertainty='rect', lines=False)
