@@ -80,7 +80,7 @@ def queries_per_second(query_times, metrics):
         qps_metrics = metrics.create_group('qps')
         qps_metrics.attrs['mean'] = 1/np.mean(query_times)
         percentiles = [5,25,50,75,95]
-        percentile_values = np.percentile(1/query_times, percentiles)
+        percentile_values = np.percentile(1/np.array(query_times), percentiles)
         for p, v in zip(percentiles, percentile_values):
             qps_metrics.attrs['perc-' + str(p)] = v
         qps_metrics['query_times'] = query_times
