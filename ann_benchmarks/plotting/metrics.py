@@ -4,6 +4,7 @@ import numpy as np
 
 def knn(dataset_distances, run_distances, count, metrics, epsilon=1e-10):
     if 'knn' not in metrics:
+        print('Computing knn metrics')
         knn_metrics = metrics.create_group('knn')
         total = len(run_distances) * count
         recalls = np.zeros(len(run_distances))
@@ -24,12 +25,15 @@ def knn(dataset_distances, run_distances, count, metrics, epsilon=1e-10):
         for p, v in zip(percentiles, percentile_values):
             knn_metrics.attrs['perc-' + str(p)] = v
         knn_metrics['recalls'] = recalls
+    else:
+        print("Found cached result")
     return metrics['knn']
 
 
 def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
     s = 'eps' + str(epsilon)
     if s not in metrics:
+        print('Computing epsilon metrics')
         epsilon_metrics = metrics.create_group(s)
         total = len(run_distances) * count
         recalls = np.zeros(len(run_distances))
@@ -49,10 +53,13 @@ def epsilon(dataset_distances, run_distances, count, metrics, epsilon=0.01):
         for p, v in zip(percentiles, percentile_values):
             epsilon_metrics.attrs['perc-' + str(p)] = v
         epsilon_metrics['recalls'] = recalls
+    else:
+        print("Found cached result")
     return metrics[s]
 
 def rel(dataset_distances, run_distances, metrics):
     if 'rel' not in metrics:
+        print('Computing rel metrics')
         total_closest_distance = 0.0
         total_candidate_distance = 0.0
         for true_distances, found_distances in zip(dataset_distances, run_distances):
@@ -63,10 +70,13 @@ def rel(dataset_distances, run_distances, metrics):
             metrics['rel'] = float("inf")
         else:
             metrics['rel'] = total_candidate_distance / total_closest_distance
+    else:
+        print("Found cached result")
     return metrics['rel']
 
 def queries_per_second(query_times, metrics):
     if 'qps' not in metrics:
+        print('Computing qps metrics')
         qps_metrics = metrics.create_group('qps')
         qps_metrics.attrs['mean'] = np.mean(query_times)
         qps_metrics.attrs['std'] = np.std(query_times)
@@ -75,6 +85,8 @@ def queries_per_second(query_times, metrics):
         for p, v in zip(percentiles, percentile_values):
             qps_metrics.attrs['perc-' + str(p)] = v
         qps_metrics['query_times'] = query_times
+    else:
+        print("Found cached result")
     return metrics['qps']
 
 def index_size(queries, attrs):

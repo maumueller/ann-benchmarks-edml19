@@ -52,6 +52,10 @@ if __name__ == "__main__":
     parser.add_argument(
         '--output',
         help='Path to the output csv file')
+    parser.add_argument(
+        '--recompute',
+        action='store_true',
+        help='Path to the output csv file')
     args = parser.parse_args()
 
     count = int(args.count)
@@ -61,7 +65,7 @@ if __name__ == "__main__":
         dataset = get_dataset(dataset_name)
         unique_algorithms = get_unique_algorithms()
         results = load_all_results(dataset_name, count, True, args.batch)
-        results = compute_metrics_all_runs(list(dataset["distances"]), results)
+        results = compute_metrics_all_runs(list(dataset["distances"]), results, args.recompute)
         data = pd.DataFrame(results)
         data['dataset'] = dataset_name
         data['count'] = count

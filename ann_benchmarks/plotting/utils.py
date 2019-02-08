@@ -35,7 +35,7 @@ def create_pointset(data, xn, yn):
             ls.append(algo_name)
     return xs, ys, ls, axs, ays, als
 
-def compute_metrics(dataset, res, metric_1, metric_2):
+def compute_metrics(dataset, res, metric_1, metric_2, recompute=False):
     true_nn_distances = numpy.array(dataset['distances'])
     all_results = {}
     for i, (properties, run) in enumerate(res):
@@ -44,8 +44,8 @@ def compute_metrics(dataset, res, metric_1, metric_2):
         # cache to avoid access to hdf5 file
         run_distances = numpy.array(run['distances'])
         query_times = numpy.array(run['times'])
-        # if 'metrics' in run:
-        #     del run['metrics']
+        if recompute and 'metrics' in run:
+            del run['metrics']
         metrics_cache = get_or_create_metrics(run)
 
         metric_1_value = metrics[metric_1]['function'](true_nn_distances, run_distances, query_times, metrics_cache, run.attrs)
@@ -58,13 +58,16 @@ def compute_metrics(dataset, res, metric_1, metric_2):
     return all_results
 
 
-def compute_metrics_all_runs(true_nn_distances, res):
+def compute_metrics_all_runs(true_nn_distances, res, recompute=False):
     for i, (properties, run) in enumerate(res):
         algo = properties['algo']
         algo_name = properties['name']
         # cache distances to avoid access to hdf5 file
         run_distances = list(run['distances'])
         query_times = list(run['times'])
+        if recompute and 'metrics' in run:
+            print('Recomputing metrics, clearing cache')
+            del run['metrics']
         metrics_cache = get_or_create_metrics(run)
         run_result = {
             'algorithm': algo,
@@ -76,7 +79,7 @@ def compute_metrics_all_runs(true_nn_distances, res):
         yield run_result
 
 
-def compute_all_metrics(true_nn_distances, run, properties):
+def compute_all_metrics(true_nn_distances, run, properties, recompute=False):
     algo = properties["algo"]
     algo_name = properties["name"]
     print('--')
@@ -85,6 +88,8 @@ def compute_all_metrics(true_nn_distances, run, properties):
     # cache to avoid access to hdf5 file
     run_distances = numpy.array(run["distances"])
     query_times = numpy.array(run['times'])
+    if recompute and 'metrics' in run:
+        del run['metrics']
     metrics_cache = get_or_create_metrics(run)
 
     for name, metric in metrics.items():
