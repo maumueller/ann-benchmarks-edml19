@@ -93,6 +93,6 @@ if __name__ == '__main__':
         plotdata = data[data['dataset'] == dataset]
         uncertainty(plotdata, '{}/{}.png'.format(out_dir,dataset), 
                     x='k-nn-median', y='qps-median',
-                    x_min='k-nn-perc-5', x_max='k-nn-perc-95',
-                    y_min='qps-perc-5', y_max='qps-perc-95',
+                    x_min='k-nn-perc-25', x_max='k-nn-perc-75',
+                    y_min='qps-perc-25', y_max='qps-perc-75',
                     uncertainty='rect', lines=False)
