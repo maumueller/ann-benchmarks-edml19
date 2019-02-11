@@ -226,9 +226,15 @@ class geom_half_violin(geom):
 
 def lid2(data, output):
 
+    # sort datasets by difficulty
+    dataset_cats = data.groupby('dataset')[['lid']].max().reset_index().sort_values(by='lid')['dataset'].values
+    dataset_cats = CategoricalDtype(dataset_cats, ordered=True)
+    data['dataset'] = data['dataset'].astype(dataset_cats)
+
     g = (ggplot(data, aes(x='dataset', y='lid'))
 	 + geom_half_violin(aes(weight='weight'),
                             flip=True,
+                            scale='width',
                             draw_quantiles=[.25, .5, .75])
          + geom_comb(draw_y=False, length=-0.01)
          + coord_flip()
